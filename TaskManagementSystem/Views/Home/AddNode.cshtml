@@ -1,0 +1,20 @@
+﻿@model Node
+
+<form asp-action="AddNode" asp-controller="Home" method="post">
+	<div>
+		<p>
+			<label asp-for="Title"></label> <br />
+			<input asp-for="Title" type="text" />
+		</p>
+		<p>
+			<label asp-for="Description"></label> <br />
+			<input asp-for="Description" type="text" />
+		</p>
+
+		<br />
+
+		<input type="submit" value="Create" />
+	</div>
+</form>
+
+<a asp-route="Main">Back</a>
