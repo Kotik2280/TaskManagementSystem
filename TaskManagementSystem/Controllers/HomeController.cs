@@ -31,6 +31,25 @@ namespace TaskManagementSystem.Controllers
 
             return RedirectToAction("Nodes");
         }
+        [HttpGet]
+        public IActionResult EditNode()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> EditNode(Node newNode)
+        {
+            Node? oldNode = await _nodedb.Nodes.FirstOrDefaultAsync(n => n.Id == newNode.Id);
+
+            if (oldNode is null) return RedirectToRoute("Main");
+
+            oldNode.Title = newNode.Title;
+            oldNode.Description = newNode.Description;
+
+            await _nodedb.SaveChangesAsync();
+
+            return RedirectToRoute("Main");
+        }
         [HttpPost]
         public async Task<IActionResult> DeleteNode(int id)
         {

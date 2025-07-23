@@ -1,0 +1,14 @@
+﻿@model Node
+
+<form method="post">
+	<h2>Node editing</h2>
+	<p>
+		<label>Title</label>
+		<input type="text" asp-for="Title"/>
+	</p>
+	<p>
+		<label>Description</label>
+		<textarea asp-for="Description"></textarea>
+	</p>
+	<input type="submit" value="Edit"/>
+</form>

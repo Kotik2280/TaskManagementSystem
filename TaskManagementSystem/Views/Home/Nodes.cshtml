@@ -11,6 +11,9 @@
 			<td>@node.Title</td>
 			<td>@node.Description</td>
 			<td>
+				<a asp-controller="Home" asp-action="EditNode" asp-route-id="@node.Id">Edit</a>
+			</td>
+			<td>
 				<form method="post" asp-controller="Home" asp-action="DeleteNode" asp-route-id="@node.Id">
 					<input type="submit" value="Delete"/>
 				</form>
