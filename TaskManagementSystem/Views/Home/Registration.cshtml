@@ -1,0 +1,17 @@
+﻿@model User
+
+<h2>Registration</h2>
+
+<form method="post">
+	<p>
+		<label asp-for="Name">Name</label> <br />
+		<input type="text" asp-for="Name"/>
+	</p>
+	<p>
+		<label asp-for="Password">Password</label> <br />
+		<input type="text" asp-for="Password" />
+	</p>
+	<input type="submit" value="Register"/>
+</form>
+
+<a asp-route="Main">Back</a>

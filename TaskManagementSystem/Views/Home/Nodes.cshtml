@@ -1,6 +1,10 @@
 ﻿@model List<Node>
 
 <a asp-controller="Home" asp-action="AddNode">Add node</a>
+<h3>@ViewData["UserName"]</h3>
+<form asp-controller="home" asp-action="Logout" method="post">
+	<input type="submit" value="Logout"/>
+</form>
 
 <table>
 	<tr> <td>Id</td> <td>Title</td> <td>Description</td> </tr>
