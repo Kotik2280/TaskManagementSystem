@@ -88,6 +88,8 @@ namespace TaskManagementSystem.Controllers
         [Authorize]
         public async Task<IActionResult> AddNode(Node node)
         {
+            node.CreateDate = DateTime.Now;
+
             await _nodedb.Nodes.AddAsync(node);
             await _nodedb.SaveChangesAsync();
 
@@ -95,9 +97,11 @@ namespace TaskManagementSystem.Controllers
         }
         [HttpGet]
         [Authorize]
-        public IActionResult EditNode()
+        public async Task<IActionResult> EditNode(int id)
         {
-            return View();
+            Node? node = await _nodedb.Nodes.FirstOrDefaultAsync(n => n.Id == id);
+
+            return View(node);
         }
         [HttpPost]
         [Authorize]
