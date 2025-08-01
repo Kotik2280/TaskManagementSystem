@@ -1,7 +1,14 @@
 ﻿@model Node
 
+<h2>Node editing</h2>
+
+@if (ViewData["Errors"] is not null)
+	@foreach (var failure in (List<FluentValidation.Results.ValidationFailure>)ViewData["Errors"])
+	{
+		<p>@failure.PropertyName : @failure.ErrorMessage</p>
+	}
+
 <form method="post">
-	<h2>Node editing</h2>
 	<p>
 		<label>Title</label>
 		<input type="text" asp-for="Title"/>

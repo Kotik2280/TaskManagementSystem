@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using TaskManagementSystem.Models;
+using TaskManagementSystem.Models.Validators;
 using TaskManagementSystem.Attributes;
 
 namespace TaskManagementSystem.Controllers
@@ -23,8 +24,18 @@ namespace TaskManagementSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> Registration(User user)
         {
+            UserValidator validator = new UserValidator();
+            if (!validator.Validate(user).IsValid)
+            {
+                ViewData["Errors"] = validator.Validate(user).Errors;
+                return View();
+            }
+
             if ((await _nodedb.Users.FirstOrDefaultAsync(u => u.Name == user.Name)) is not null)
-                return BadRequest();
+            {
+                ViewData["MultiAccoutError"] = "User with this Name is already registered";
+                return View();
+            }
 
             await _nodedb.Users.AddAsync(user);
 
@@ -39,7 +50,11 @@ namespace TaskManagementSystem.Controllers
         {
             User? user = await _nodedb.Users.FirstOrDefaultAsync(u => u.Name == inputUser.Name && u.Password == inputUser.Password);
 
-            if (user == null) return BadRequest();
+            if (user == null) 
+            {
+                ViewData["Errors"] = "Name or Password don't match";
+                return View();
+            }
 
             var claims = new List<Claim> { new Claim(ClaimTypes.Name, user.Name) };
 

@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TaskManagementSystem.Models;
+using TaskManagementSystem.Models.Validators;
 
 namespace TaskManagementSystem.Controllers
 {
@@ -38,6 +40,14 @@ namespace TaskManagementSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> AddNode(Node node)
         {
+            NodeValidator validator = new NodeValidator();
+
+            if (!validator.Validate(node).IsValid)
+            {
+                ViewData["Errors"] = validator.Validate(node).Errors;
+                return View();
+            }
+
             node.CreateDate = DateTime.Now;
 
             await _nodedb.Nodes.AddAsync(node);
@@ -58,6 +68,19 @@ namespace TaskManagementSystem.Controllers
             Node? oldNode = await _nodedb.Nodes.FirstOrDefaultAsync(n => n.Id == newNode.Id);
 
             if (oldNode is null) return RedirectToRoute("Main");
+
+            NodeValidator validator = new NodeValidator();
+            ValidationResult validationResult = validator.Validate(newNode);
+
+            if (!validationResult.IsValid)
+            {
+                if (validationResult.Errors.Any(e => e.PropertyName == "Title"))
+                    ModelState.Remove("Title");
+                if (validationResult.Errors.Any(e => e.PropertyName == "Description"))
+                    ModelState.Remove("Description");
+                ViewData["Errors"] = validationResult.Errors;
+                return View(oldNode);
+            }
 
             oldNode.Title = newNode.Title;
             oldNode.Description = newNode.Description;

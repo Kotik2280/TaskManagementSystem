@@ -2,6 +2,14 @@
 
 <h2>Registration</h2>
 
+@if (ViewData["Errors"] is not null)
+	@foreach (var failure in (List<FluentValidation.Results.ValidationFailure>)ViewData["Errors"])
+	{
+		<p>@failure.PropertyName : @failure.ErrorMessage</p>
+	}
+
+<p>@ViewData["MultiAccoutError"]</p>
+
 <form method="post">
 	<p>
 		<label asp-for="Name">Name</label> <br />

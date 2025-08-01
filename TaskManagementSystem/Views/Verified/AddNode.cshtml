@@ -1,5 +1,13 @@
 ﻿@model Node
 
+<h2>Node Adding</h2>
+
+@if (ViewData["Errors"] is not null)
+	@foreach (var failure in (List<FluentValidation.Results.ValidationFailure>)ViewData["Errors"])
+	{
+		<p>@failure.PropertyName : @failure.ErrorMessage</p>
+	}
+
 <form asp-action="AddNode" asp-controller="Verified" method="post">
 	<div>
 		<p>
