@@ -6,6 +6,7 @@ using System.Security.Claims;
 using TaskManagementSystem.Models;
 using TaskManagementSystem.Models.Validators;
 using TaskManagementSystem.Attributes;
+using Serilog;
 
 namespace TaskManagementSystem.Controllers
 {
@@ -40,6 +41,8 @@ namespace TaskManagementSystem.Controllers
             await _nodedb.Users.AddAsync(user);
 
             await _nodedb.SaveChangesAsync();
+
+            Log.Information("User {0} registered successful!", user.Name);
 
             return RedirectToRoute("Main");
         }

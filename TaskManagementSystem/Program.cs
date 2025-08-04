@@ -3,56 +3,84 @@ using TaskManagementSystem.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Serilog;
+using Serilog.Events;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder();
 
-builder.Services.AddMvc();
-builder.Services.AddDbContext<NodeContext>(
-    options => options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddAuthorization();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddCookie(options => options.LoginPath = "/Home/Index")
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+    .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} {NewLine}{Exception}")
+    //.WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+try
+{
+    Log.Information("Starting web application...");
+
+    builder.Host.UseSerilog();
+
+    builder.Services.AddMvc();
+    builder.Services.AddDbContext<NodeContext>(
+        options => options.UseSqlServer(
+            builder.Configuration.GetConnectionString("DefaultConnection")));
+    builder.Services.AddAuthorization();
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddCookie(options => options.LoginPath = "/Home/Index")
+        .AddJwtBearer(options =>
         {
-            ValidateIssuer = true,
-            ValidIssuer = AuthOptions.ISSUER,
-            ValidateAudience = true,
-            ValidAudience = AuthOptions.AUDIENCE,
-            ValidateLifetime = true,
-            IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
-            ValidateIssuerSigningKey = true
-        };
-
-        options.Events = new JwtBearerEvents
-        {
-            OnMessageReceived = context =>
+            options.TokenValidationParameters = new TokenValidationParameters
             {
-                context.Token = context.Request.Cookies["jwt"];
-                return Task.CompletedTask;
-            }
-        };
-    });
+                ValidateIssuer = true,
+                ValidIssuer = AuthOptions.ISSUER,
+                ValidateAudience = true,
+                ValidAudience = AuthOptions.AUDIENCE,
+                ValidateLifetime = true,
+                IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
+                ValidateIssuerSigningKey = true
+            };
 
-var app = builder.Build();
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    context.Token = context.Request.Cookies["jwt"];
+                    return Task.CompletedTask;
+                }
+            };
+        });
 
-app.UseAuthentication();
-app.UseAuthorization();
+    var app = builder.Build();
 
-app.MapControllerRoute(
-    name: "Default",
-    pattern: "{controller=Home}/{action=Index}/{id?}"
-    );
+    app.UseAuthentication();
+    app.UseAuthorization();
 
-app.MapControllerRoute(
-    name: "Main",
-    pattern: "Home/Index/"
-    );
+    app.MapControllerRoute(
+        name: "Default",
+        pattern: "{controller=Home}/{action=Index}/{id?}"
+        );
 
-app.Run();
+    app.MapControllerRoute(
+        name: "Main",
+        pattern: "Home/Index/"
+        );
 
+    await app.StartAsync();
+
+    Log.Information("====== Web application started successful! ======");
+    Log.Information("Urls: {Urls}", string.Join(", ", app.Urls));
+    Log.Information("Environment: {Env}", app.Environment.EnvironmentName);
+
+    await app.WaitForShutdownAsync();
+}
+catch (Exception e)
+{
+    Log.Fatal(e, "Application starting error");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
 public class AuthOptions
 {
     public const string ISSUER = "EpiccipE";
