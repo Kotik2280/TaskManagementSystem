@@ -56,12 +56,14 @@ namespace TaskManagementSystem.Controllers
                 return View();
             }
 
+            User? user = await _nodedb.Users.FirstOrDefaultAsync(u => u.Name == HttpContext.User.Identity.Name);
+
             node.CreateDate = DateTime.Now;
+            node.AuthorName = user.Name;
 
             await _nodedb.Nodes.AddAsync(node);
             await _nodedb.SaveChangesAsync();
-
-            User? user = await _nodedb.Users.FirstOrDefaultAsync(u => u.Name == HttpContext.User.Identity.Name);
+            
             Log.Information("[NODE CREATED] Node ID: {Id}, Title: {Title}, Description: {Desc}\n" +
                 "By User ID: {Id}, Name: {Name}", 
                 node.Id, node.Title, node.Description, 

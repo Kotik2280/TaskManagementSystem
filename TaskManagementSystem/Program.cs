@@ -9,13 +9,13 @@ using Serilog.Events;
 var builder = WebApplication.CreateBuilder();
 
 Log.Logger = new LoggerConfiguration()
-    //.MinimumLevel.Override("Microsoft", LogEventLevel.Warning) //Отключение подробных логов
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning) //Отключение подробных логов
     .Filter.ByExcluding(e =>
         e.MessageTemplate.Text.Contains("Unable to configure Browser Link") ||
         e.MessageTemplate.Text.Contains("Unable to configure browser refresh") ||
         e.MessageTemplate.Text.Contains("Executed DbCommand"))
     .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} {NewLine}{Exception}")
-    //.WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day) //Запись логов в файл
+    .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day) //Запись логов в файл
     .CreateLogger();
 
 try

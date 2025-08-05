@@ -7,12 +7,13 @@
 </form>
 
 <table>
-	<tr> <td>Id</td> <td>CreateTime</td> <td>Title</td> <td>Description</td> </tr>
+	<tr> <td>Id</td> <td>CreateTime</td> <td>Author</td> <td>Title</td> <td>Description</td> </tr>
 	@foreach (Node node in Model)
 	{
 		<tr> 
 			<td>@node.Id</td>
 			<td>@node.CreateDate</td>
+			<td>@node.AuthorName</td>
 			<td>@node.Title</td>
 			<td>@node.Description</td>
 			<td>
