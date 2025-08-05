@@ -6,6 +6,7 @@ using TaskManagementSystem.Models;
 using TaskManagementSystem.Models.Validators;
 using Serilog;
 using System.Xml.Linq;
+using static Azure.Core.HttpHeader;
 
 namespace TaskManagementSystem.Controllers
 {
@@ -131,6 +132,27 @@ namespace TaskManagementSystem.Controllers
             user.Id, user.Name);
 
             return RedirectToAction("Nodes");
+        }
+        [HttpGet]
+        public async Task<IActionResult> Profile(string name)
+        {
+            if (name == HttpContext.User.Identity.Name)
+                return RedirectToAction("MyProfile");
+
+            List<Node> nodes = await _nodedb.Nodes.Where(n => n.AuthorName == name).ToListAsync();
+            ViewData["AuthorName"] = name;
+
+            return View(nodes);
+        }
+        [HttpGet]
+        public async Task<IActionResult> MyProfile()
+        {
+            string name = HttpContext.User.Identity.Name;
+
+            List<Node> nodes = await _nodedb.Nodes.Where(n => n.AuthorName == name).ToListAsync();
+            ViewData["AuthorName"] = name;
+
+            return View(nodes);
         }
     }
 }

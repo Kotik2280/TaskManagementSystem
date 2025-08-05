@@ -1,0 +1,28 @@
+﻿<h2>@ViewData["AuthorName"]</h2>
+
+<form asp-controller="Verified" asp-action="Logout" method="post">
+	<input type="submit" value="Logout" />
+</form>
+
+<a asp-controller="Verified" asp-action="Nodes">Back</a>
+
+<table>
+	<tr> <td>Id</td> <td>CreateTime</td> <td>Title</td> <td>Description</td> </tr>
+	@foreach (Node node in Model)
+	{
+		<tr>
+			<td>@node.Id</td>
+			<td>@node.CreateDate</td>
+			<td>@node.Title</td>
+			<td>@node.Description</td>
+			<td>
+				<a asp-controller="Verified" asp-action="EditNode" asp-route-id="@node.Id">Edit</a>
+			</td>
+			<td>
+				<form method="post" asp-controller="Verified" asp-action="DeleteNode" asp-route-id="@node.Id">
+					<input type="submit" value="Delete" />
+				</form>
+			</td>
+		</tr>
+	}
+</table>

@@ -2,9 +2,12 @@
 
 <a asp-controller="Verified" asp-action="AddNode">Add node</a>
 <h3>@ViewData["UserName"]</h3>
+
 <form asp-controller="Verified" asp-action="Logout" method="post">
-	<input type="submit" value="Logout"/>
+	<input type="submit" value="Logout" />
 </form>
+
+<a asp-controller="Verified" asp-action="MyProfile">My Nodes</a>
 
 <table>
 	<tr> <td>Id</td> <td>CreateTime</td> <td>Author</td> <td>Title</td> <td>Description</td> </tr>
@@ -13,17 +16,9 @@
 		<tr> 
 			<td>@node.Id</td>
 			<td>@node.CreateDate</td>
-			<td>@node.AuthorName</td>
+			<td><a asp-controller="Verified" asp-action="Profile" asp-route-name="@node.AuthorName">@node.AuthorName</a> </td>
 			<td>@node.Title</td>
 			<td>@node.Description</td>
-			<td>
-				<a asp-controller="Verified" asp-action="EditNode" asp-route-id="@node.Id">Edit</a>
-			</td>
-			<td>
-				<form method="post" asp-controller="Verified" asp-action="DeleteNode" asp-route-id="@node.Id">
-					<input type="submit" value="Delete"/>
-				</form>
-			</td>
 		</tr>
 	}
 </table>
