@@ -35,6 +35,7 @@ namespace TaskManagementSystem.Controllers
             if ((await _nodedb.Users.FirstOrDefaultAsync(u => u.Name == user.Name)) is not null)
             {
                 ViewData["MultiAccoutError"] = "User with this Name is already registered";
+                Log.Information("Attempt to register name that already in use ({Name})", user.Name);
                 return View();
             }
 
@@ -42,7 +43,7 @@ namespace TaskManagementSystem.Controllers
 
             await _nodedb.SaveChangesAsync();
 
-            Log.Information("User {0} registered successful!", user.Name);
+            Log.Information("[USER CREATED] User ID: {Id} Name: {Name} successful!", user.Id, user.Name);
 
             return RedirectToRoute("Main");
         }
@@ -75,6 +76,8 @@ namespace TaskManagementSystem.Controllers
             {
                 Expires = DateTime.UtcNow.AddMinutes(120)
             });
+
+            Log.Information("[JWT LOGIN] User ID: {Id} Name: {Name} authorized successful!", user.Id, user.Name);
 
             return RedirectToAction("Nodes", "Verified");
         }
