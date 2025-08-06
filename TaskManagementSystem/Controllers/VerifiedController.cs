@@ -7,6 +7,7 @@ using TaskManagementSystem.Models.Validators;
 using Serilog;
 using System.Xml.Linq;
 using static Azure.Core.HttpHeader;
+using TaskManagementSystem.Models.ViewModels;
 
 namespace TaskManagementSystem.Controllers
 {
@@ -47,27 +48,31 @@ namespace TaskManagementSystem.Controllers
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> AddNode(Node node)
+        public async Task<IActionResult> AddNode(NodeAndDeadLine nodeAndDeadLine)
         {
-            NodeValidator validator = new NodeValidator();
+            NodeAndDeadLineValidator validator = new NodeAndDeadLineValidator();
 
-            if (!validator.Validate(node).IsValid)
+            if (!validator.Validate(nodeAndDeadLine).IsValid)
             {
-                ViewData["Errors"] = validator.Validate(node).Errors;
+                ViewData["Errors"] = validator.Validate(nodeAndDeadLine).Errors;
                 return View();
             }
 
+            Node node = nodeAndDeadLine.Node;
+            var (days, hours, minutes) = nodeAndDeadLine.DeadLineTime;
             User? user = await _nodedb.Users.FirstOrDefaultAsync(u => u.Name == HttpContext.User.Identity.Name);
 
             node.CreateDate = DateTime.Now;
+            if (days != 0 || hours != 0 || minutes != 0)
+                node.DeadLine = node.CreateDate + new TimeSpan(days, hours, minutes, 0);
             node.AuthorName = user.Name;
 
             await _nodedb.Nodes.AddAsync(node);
             await _nodedb.SaveChangesAsync();
             
-            Log.Information("[NODE CREATED] Node ID: {Id}, Title: {Title}, Description: {Desc}\n" +
-                "By User ID: {Id}, Name: {Name}", 
-                node.Id, node.Title, node.Description, 
+            Log.Information("[NODE CREATED] Node ID: {Id}, Title: {Title}, Description: {Desc} DeadLine: {DeadLine}\n" +
+                "By User ID: {UserId}, Name: {Name}", 
+                node.Id, node.Title, node.Description, node.DeadLine,
                 user.Id, user.Name);
 
             return RedirectToAction("Nodes");
@@ -99,6 +104,9 @@ namespace TaskManagementSystem.Controllers
                 return View(oldNode);
             }
 
+            string oldNodeTitle = oldNode.Title;
+            string oldNodeDescription = oldNode.Description;
+
             oldNode.Title = newNode.Title;
             oldNode.Description = newNode.Description;
 
@@ -107,8 +115,8 @@ namespace TaskManagementSystem.Controllers
             User? user = await _nodedb.Users.FirstOrDefaultAsync(u => u.Name == HttpContext.User.Identity.Name);
 
             Log.Information("[NODE EDITED] Node ID: {Id}, Title: {oldTitle}, Description: {oldDesc} -> Title: {newTitle}, Descrition: {newDesc}\n" +
-                "By User ID: {Id}, Name: {Name}",
-            oldNode.Id, oldNode.Title, oldNode.Description, newNode.Title, newNode.Description, 
+                "By User ID: {UserId}, Name: {Name}",
+            oldNode.Id, oldNodeTitle, oldNodeDescription, newNode.Title, newNode.Description, 
             user.Id, user.Name);
 
             return RedirectToAction("Nodes");
@@ -127,7 +135,7 @@ namespace TaskManagementSystem.Controllers
             User? user = await _nodedb.Users.FirstOrDefaultAsync(u => u.Name == HttpContext.User.Identity.Name);
 
             Log.Information("[NODE DELETED] Node ID: {Id}, Title: {Title}, Description: {Desc}\n" +
-                "By User ID: {Id}, Name: {Name}",
+                "By User ID: {UserId}, Name: {Name}",
             node.Id, node.Title, node.Description,
             user.Id, user.Name);
 

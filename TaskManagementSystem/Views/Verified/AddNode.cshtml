@@ -1,4 +1,4 @@
-﻿@model Node
+﻿@model NodeAndDeadLine
 
 <h2>Node Adding</h2>
 
@@ -11,13 +11,31 @@
 <form asp-action="AddNode" asp-controller="Verified" method="post">
 	<div>
 		<p>
-			<label asp-for="Title"></label> <br />
-			<input asp-for="Title" type="text" />
+			<label asp-for="Node.Title"></label> <br />
+			<input asp-for="Node.Title" type="text" />
 		</p>
 		<p>
-			<label asp-for="Description"></label> <br />
-			<textarea asp-for="Description"></textarea>
+			<label asp-for="Node.Description"></label> <br />
+			<textarea asp-for="Node.Description"></textarea>
 		</p>
+
+		<p>
+			<input id="checkbx" type="checkbox"/>
+			Has DeadLine?
+		</p>
+		
+		<div id="deadLineSetter" style="display:none">
+			<label>DeadLine time</label> <br />
+
+			<label asp-for="DeadLineTime.Days">Days</label>
+			<input asp-for="DeadLineTime.Days" type="number" value="0" /> <br />
+
+			<label asp-for="DeadLineTime.Hours">Hours</label>
+			<input asp-for="DeadLineTime.Hours" type="number" value="0" /> <br />
+
+			<label asp-for="DeadLineTime.Minutes">Minutes</label>
+			<input asp-for="DeadLineTime.Minutes" type="number" value="0" />
+		</div>
 
 		<br />
 
@@ -26,3 +44,18 @@
 </form>
 
 <a asp-controller="Verified" asp-action="Nodes">Back</a>
+
+<script>
+	let checkbx = document.getElementById("checkbx");
+
+	checkbx.addEventListener("click", function ()
+	{
+		let dlSetter = document.getElementById("deadLineSetter");
+		if (checkbx.checked) {
+			dlSetter.style = "display:block";
+		}
+		else {
+			dlSetter.style = "display:none";
+		}
+	});
+</script>

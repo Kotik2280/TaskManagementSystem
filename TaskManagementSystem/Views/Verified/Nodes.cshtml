@@ -10,7 +10,7 @@
 <a asp-controller="Verified" asp-action="MyProfile">My Nodes</a>
 
 <table>
-	<tr> <td>Id</td> <td>CreateTime</td> <td>Author</td> <td>Title</td> <td>Description</td> </tr>
+	<tr> <td>Id</td> <td>CreateTime</td> <td>Author</td> <td>Title</td> <td>Description</td> <td>DeadLine</td> </tr>
 	@foreach (Node node in Model)
 	{
 		<tr> 
@@ -19,6 +19,7 @@
 			<td><a asp-controller="Verified" asp-action="Profile" asp-route-name="@node.AuthorName">@node.AuthorName</a> </td>
 			<td>@node.Title</td>
 			<td>@node.Description</td>
+			<td>@(node.DeadLine is null ? "-" : $"{node.DeadLine} ({DateToViewConverter.GetStringRepresentation((DateTime)node.DeadLine)})")</td>
 		</tr>
 	}
 </table>
