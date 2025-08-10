@@ -1,7 +1,27 @@
-﻿@model List<Node>
+﻿@model NodesAndSortingSettings
 
 <a asp-controller="Verified" asp-action="AddNode">Add node</a>
 <h3>@ViewData["UserName"]</h3>
+
+<div id="SortAndFilter">
+	<form method="post">
+		<p>Sort By</p>
+		<select asp-for="SortingSettings.Field">
+			<option value="ID" selected>ID</option>
+			<option value="CreateDate">CreateDate</option>
+			<option value="Author">Author</option>
+			<option value="Title">Title</option>
+			<option value="DeadLine">DeadLine</option>
+		</select>
+
+		<select asp-for="SortingSettings.Vector">
+			<option value="By ascending">By ascending</option>
+			<option value="By descending" selected>By descending</option>
+		</select>
+
+		<input value="Sort" type="submit"/>
+	</form>
+</div>
 
 <form asp-controller="Verified" asp-action="Logout" method="post">
 	<input type="submit" value="Logout" />
@@ -11,7 +31,7 @@
 
 <table>
 	<tr> <td>Id</td> <td>CreateTime</td> <td>Author</td> <td>Title</td> <td>Description</td> <td>DeadLine</td> </tr>
-	@foreach (Node node in Model)
+	@foreach (Node node in Model.Nodes)
 	{
 		<tr> 
 			<td>@node.Id</td>

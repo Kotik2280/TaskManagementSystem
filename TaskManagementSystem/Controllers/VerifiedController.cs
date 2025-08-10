@@ -38,9 +38,25 @@ namespace TaskManagementSystem.Controllers
         {
             ViewData["UserName"] = HttpContext.User.Identity.Name;
 
-            var nodes = _nodedb.Nodes.ToList();
+            var nodes = _nodedb.Nodes.OrderByDescending(n => n.Id).ToList();
 
-            return View(nodes);
+            return View(new NodesAndSortingSettings(nodes, new SortingSettings()));
+        }
+        [HttpPost]
+        public IActionResult Nodes(SortingSettings sortingSettings)
+        {
+            ViewData["UserName"] = HttpContext.User.Identity.Name;
+
+            List<Node> nodes = null;
+
+            if (sortingSettings.Field is null || sortingSettings.Vector is null)
+                nodes = _nodedb.Nodes.OrderByDescending(n => n.Id).ToList();
+            else
+            {
+                nodes = NodeSorter.Sort(_nodedb.Nodes, sortingSettings);
+            }
+
+            return View(new NodesAndSortingSettings(nodes, sortingSettings));
         }
         [HttpGet]
         public IActionResult AddNode()
