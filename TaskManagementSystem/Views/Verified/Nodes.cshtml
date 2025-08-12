@@ -7,8 +7,7 @@
 	<form method="post">
 		<p>Sort By</p>
 		<select asp-for="SortingSettings.Field">
-			<option value="ID" selected>ID</option>
-			<option value="CreateDate">CreateDate</option>
+			<option value="CreateDate" selected>CreateDate</option>
 			<option value="Author">Author</option>
 			<option value="Title">Title</option>
 			<option value="DeadLine">DeadLine</option>
@@ -30,16 +29,26 @@
 <a asp-controller="Verified" asp-action="MyProfile">My Nodes</a>
 
 <table>
-	<tr> <td>Id</td> <td>CreateTime</td> <td>Author</td> <td>Title</td> <td>Description</td> <td>DeadLine</td> </tr>
+	<tr> <td>CreateTime</td> <td>Author</td> <td>Responsible</td> <td>Title</td> <td>Description</td> <td>DeadLine</td> <td>Status</td> </tr>
 	@foreach (Node node in Model.Nodes)
 	{
-		<tr> 
-			<td>@node.Id</td>
+		<tr>
 			<td>@node.CreateDate</td>
 			<td><a asp-controller="Verified" asp-action="Profile" asp-route-name="@node.AuthorName">@node.AuthorName</a> </td>
+			<td>
+				@if (node.Responsible is null)
+				{
+					<p>-</p>
+				}
+				else
+				{
+					<a asp-controller="Verified" asp-action="Profile" asp-route-name="@node.Responsible">@node.Responsible</a>
+				}
+			</td>
 			<td>@node.Title</td>
 			<td>@node.Description</td>
 			<td>@(node.DeadLine is null ? "-" : $"{node.DeadLine} ({DateToViewConverter.GetStringRepresentation((DateTime)node.DeadLine)})")</td>
+			<td>@((NodeStatus)node.Status)</td>
 		</tr>
 	}
 </table>

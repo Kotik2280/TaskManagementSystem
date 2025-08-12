@@ -1,4 +1,4 @@
-﻿@model NodeAndDeadLine
+﻿@model NodeCreation
 
 <h2>Node Adding</h2>
 
@@ -20,7 +20,7 @@
 		</p>
 
 		<p>
-			<input id="checkbx" type="checkbox"/>
+			<input id="deadlineCheckbox" type="checkbox"/>
 			Has DeadLine?
 		</p>
 		
@@ -37,6 +37,17 @@
 			<input asp-for="DeadLineTime.Minutes" type="number" value="0" />
 		</div>
 
+		<p>
+			<input id="responsibleCheckbox" type="checkbox" />
+			Has Responsible?
+		</p>
+
+		<div id="responsibleSetter" style="display:none">
+
+			<label asp-for="Responsible">Responsible</label>
+			<input asp-for="Responsible" type="text"/> <br />
+		</div>
+
 		<br />
 
 		<input type="submit" value="Create" />
@@ -46,16 +57,28 @@
 <a asp-controller="Verified" asp-action="Nodes">Back</a>
 
 <script>
-	let checkbx = document.getElementById("checkbx");
+	let deadlineCheckbox = document.getElementById("deadlineCheckbox");
+	let responsibleCheckbox = document.getElementById("responsibleCheckbox");
 
-	checkbx.addEventListener("click", function ()
+	deadlineCheckbox.addEventListener("click", function ()
 	{
 		let dlSetter = document.getElementById("deadLineSetter");
-		if (checkbx.checked) {
+		if (deadlineCheckbox.checked) {
 			dlSetter.style = "display:block";
 		}
 		else {
 			dlSetter.style = "display:none";
+		}
+	});
+
+	responsibleCheckbox.addEventListener("click", function ()
+	{
+		let responsibleSetter = document.getElementById("responsibleSetter");
+		if (responsibleCheckbox.checked) {
+			responsibleSetter.style = "display:block";
+		}
+		else {
+			responsibleSetter.style = "display:none";
 		}
 	});
 </script>

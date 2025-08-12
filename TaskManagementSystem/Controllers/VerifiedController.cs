@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using TaskManagementSystem.Models;
 using TaskManagementSystem.Models.Validators;
 using Serilog;
-using System.Xml.Linq;
-using static Azure.Core.HttpHeader;
 using TaskManagementSystem.Models.ViewModels;
 
 namespace TaskManagementSystem.Controllers
@@ -64,18 +62,18 @@ namespace TaskManagementSystem.Controllers
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> AddNode(NodeAndDeadLine nodeAndDeadLine)
+        public async Task<IActionResult> AddNode(NodeCreation nodeCreation)
         {
-            NodeAndDeadLineValidator validator = new NodeAndDeadLineValidator();
+            NodeCreationValidator validator = new NodeCreationValidator(_nodedb);
 
-            if (!validator.Validate(nodeAndDeadLine).IsValid)
+            if (!validator.Validate(nodeCreation).IsValid)
             {
-                ViewData["Errors"] = validator.Validate(nodeAndDeadLine).Errors;
+                ViewData["Errors"] = validator.Validate(nodeCreation).Errors;
                 return View();
             }
 
-            Node node = nodeAndDeadLine.Node;
-            var (days, hours, minutes) = nodeAndDeadLine.DeadLineTime;
+            Node node = nodeCreation.Node;
+            var (days, hours, minutes) = nodeCreation.DeadLineTime;
             User? user = await _nodedb.Users.FirstOrDefaultAsync(u => u.Name == HttpContext.User.Identity.Name);
 
             node.CreateDate = DateTime.Now;
@@ -83,13 +81,12 @@ namespace TaskManagementSystem.Controllers
                 node.DeadLine = node.CreateDate + new TimeSpan(days, hours, minutes, 0);
             node.AuthorName = user.Name;
 
+            node.Responsible = nodeCreation.Responsible;
+
             await _nodedb.Nodes.AddAsync(node);
             await _nodedb.SaveChangesAsync();
-            
-            Log.Information("[NODE CREATED] Node ID: {Id}, Title: {Title}, Description: {Desc} DeadLine: {DeadLine}\n" +
-                "By User ID: {UserId}, Name: {Name}", 
-                node.Id, node.Title, node.Description, node.DeadLine,
-                user.Id, user.Name);
+
+            Log.Information("[NODE CREATED] {@node}\nby [{id}]{name}", node, user.Id, user.Name);
 
             return RedirectToAction("Nodes");
         }
@@ -164,7 +161,28 @@ namespace TaskManagementSystem.Controllers
                 return RedirectToAction("MyProfile");
 
             List<Node> nodes = await _nodedb.Nodes.Where(n => n.AuthorName == name).ToListAsync();
+
             ViewData["AuthorName"] = name;
+
+            return View(nodes);
+        }
+        [HttpGet]
+        public async Task<IActionResult> ProfileResponsible(string name)
+        {
+            List<Node> nodes = await _nodedb.Nodes.Where(n => n.Responsible == name).ToListAsync();
+
+            ViewData["AuthorName"] = name;
+
+            int complited = (await _nodedb.Nodes
+                        .Where(n => n.Responsible == name && (NodeStatus)n.Status == NodeStatus.Accepted)
+                        .ToListAsync()).Count;
+            int failed = (await _nodedb.Nodes
+                        .Where(n => n.Responsible == name && (NodeStatus)n.Status == NodeStatus.Ejected)
+                        .ToListAsync()).Count;
+
+            ViewData["Complited"] = complited;
+            ViewData["Failed"] = failed;
+            ViewData["Percent"] = complited == 0 && failed == 0 ? "-" : Math.Round((complited / (double)(complited + failed) * 100), 2);
 
             return View(nodes);
         }
@@ -177,6 +195,27 @@ namespace TaskManagementSystem.Controllers
             ViewData["AuthorName"] = name;
 
             return View(nodes);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SetNodeStatus(int id, NodeStatus status)
+        {
+            Node? node = await _nodedb.Nodes.FirstOrDefaultAsync(n => n.Id == id);
+
+            NodeStatus oldStatus = (NodeStatus)node.Status;
+
+            node.Status = (int)status;
+
+            await _nodedb.SaveChangesAsync();
+
+            string userName = HttpContext.User.Identity.Name;
+
+            User? user = await _nodedb.Users.FirstOrDefaultAsync(u => u.Name == HttpContext.User.Identity.Name);
+
+            Log.Information("[NODE {rate}] Node ID: {Id}, Title: {Title}, Description: {Desc}, Status: {status} -> {newStatus}\n" +
+                "by [{userId}]{name}", status, node.Id, node.Title, node.Description, oldStatus, status, user.Id, user.Name);
+
+            return RedirectToAction("MyProfile");
         }
     }
 }

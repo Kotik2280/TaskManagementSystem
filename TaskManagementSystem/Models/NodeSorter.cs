@@ -11,9 +11,6 @@
                 case "By ascending":
                     switch (sortingSettings.Field)
                     {
-                        case "ID":
-                            sortedNodes = nodes.OrderBy(n => n.Id).ToList();
-                            break;
                         case "CreateDate":
                             sortedNodes = nodes.OrderBy(n => n.CreateDate).ToList();
                             break;
@@ -33,9 +30,6 @@
                 case "By descending":
                     switch (sortingSettings.Field)
                     {
-                        case "ID":
-                            sortedNodes = nodes.OrderByDescending(n => n.Id).ToList();
-                            break;
                         case "CreateDate":
                             sortedNodes = nodes.OrderByDescending(n => n.CreateDate).ToList();
                             break;

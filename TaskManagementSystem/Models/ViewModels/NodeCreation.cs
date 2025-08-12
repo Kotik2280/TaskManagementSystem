@@ -1,8 +1,9 @@
 ﻿namespace TaskManagementSystem.Models.ViewModels
 {
-    public class NodeAndDeadLine
+    public class NodeCreation
     {
         public Node Node { get; set; }
         public DeadLineTime DeadLineTime { get; set; }
+        public string? Responsible { get; set; }
     }
 }

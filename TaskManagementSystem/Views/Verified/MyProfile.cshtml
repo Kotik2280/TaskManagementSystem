@@ -1,4 +1,6 @@
-﻿<h2>@ViewData["AuthorName"]</h2>
+﻿@model List<Node>
+
+<h2>@ViewData["AuthorName"]</h2>
 
 <form asp-controller="Verified" asp-action="Logout" method="post">
 	<input type="submit" value="Logout" />
@@ -6,15 +8,28 @@
 
 <a asp-controller="Verified" asp-action="Nodes">Back</a>
 
+<a asp-controller="Verified" asp-action="ProfileResponsible" asp-route-name="@ViewData["AuthorName"]">Where responsible</a>
+
 <table>
-	<tr> <td>Id</td> <td>CreateTime</td> <td>Title</td> <td>Description</td> </tr>
+	<tr> <td>CreateTime</td> <td>Responsible</td> <td>Title</td> <td>Description</td> <td>DeadLine</td> <td>Status</td> </tr>
 	@foreach (Node node in Model)
 	{
 		<tr>
-			<td>@node.Id</td>
 			<td>@node.CreateDate</td>
+			<td>
+				@if (node.Responsible is null)
+				{
+					<p>-</p>
+				}
+				else
+				{
+					<a asp-controller="Verified" asp-action="Profile" asp-route-name="@node.Responsible">@node.Responsible</a>
+				}
+			</td>
 			<td>@node.Title</td>
 			<td>@node.Description</td>
+			<td>@(node.DeadLine is null ? "-" : $"{node.DeadLine} ({DateToViewConverter.GetStringRepresentation((DateTime)node.DeadLine)})")</td>
+			<td>@((NodeStatus)node.Status)</td>
 			<td>
 				<a asp-controller="Verified" asp-action="EditNode" asp-route-id="@node.Id">Edit</a>
 			</td>
@@ -23,6 +38,19 @@
 					<input type="submit" value="Delete" />
 				</form>
 			</td>
+			@if ((NodeStatus)node.Status == NodeStatus.Default)
+			{
+				<td>
+					<form method="post" asp-controller="Verified" asp-action="SetNodeStatus" asp-route-id="@node.Id" asp-route-status="@NodeStatus.Accepted">
+						<input type="submit" value="Accept" />
+					</form>
+				</td>
+				<td>
+					<form method="post" asp-controller="Verified" asp-action="SetNodeStatus" asp-route-id="@node.Id" asp-route-status="@NodeStatus.Ejected">
+						<input type="submit" value="Eject" />
+					</form>
+				</td>
+			}
 		</tr>
 	}
 </table>

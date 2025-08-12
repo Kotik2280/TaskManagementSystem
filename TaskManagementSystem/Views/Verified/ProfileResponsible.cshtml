@@ -2,25 +2,23 @@
 
 <h2>@($"{ViewData["AuthorName"]}\'s profile")</h2>
 
+<p>
+	Complited: @ViewData["Complited"]
+	Failed: @ViewData["Failed"]
+	Percent: @ViewData["Percent"]%
+</p>
+
+
 <a asp-controller="Verified" asp-action="Nodes">Back</a>
 
-<a asp-controller="Verified" asp-action="ProfileResponsible" asp-route-name="@ViewData["AuthorName"]">Where responsible</a>
+<a asp-controller="Verified" asp-action="Profile" asp-route-name="@ViewData["AuthorName"]">Where author</a>
 <table>
-	<tr><td>CreateTime</td> <td>Responsible</td> <td>Title</td> <td>Description</td> <td>DeadLine</td> </tr>
+	<tr> <td>CreateTime</td> <td>Author</td> <td>Title</td> <td>Description</td> <td>DeadLine</td> <td>Status</td> </tr>
 	@foreach (Node node in Model)
 	{
 		<tr>
 			<td>@node.CreateDate</td>
-			<td>
-				@if (node.Responsible is null)
-				{
-					<p>-</p>
-				}
-				else
-				{
-					<a asp-controller="Verified" asp-action="Profile" asp-route-name="@node.Responsible">@node.Responsible</a>
-				}
-			</td>
+			<td><a asp-controller="Verified" asp-action="Profile" asp-route-name="@node.AuthorName">@node.AuthorName</a> </td>
 			<td>@node.Title</td>
 			<td>@node.Description</td>
 			<td>@(node.DeadLine is null ? "-" : $"{node.DeadLine} ({DateToViewConverter.GetStringRepresentation((DateTime)node.DeadLine)})")</td>
