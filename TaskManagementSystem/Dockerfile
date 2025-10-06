@@ -28,11 +28,4 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-# Установка EF Tool для миграций
-RUN dotnet tool install --global dotnet-ef --version 8.0.0
-
-# Скопируйте start скрипт
-COPY start.sh .
-RUN chmod +x start.sh
-
-ENTRYPOINT ["./start.sh"]
+ENTRYPOINT ["sh", "-c", "dotnet tool install --global dotnet-ef --version 8.0.0 && dotnet ef database update && dotnet YourProject.dll"]
