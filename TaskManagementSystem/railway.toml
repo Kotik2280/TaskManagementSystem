@@ -1,0 +1,6 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "TaskManagementSystem/Dockerfile"
+
+[deploy]
+startCommand = "dotnet TaskManagementSystem.dll"
