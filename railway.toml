@@ -6,7 +6,7 @@ dockerfilePath = "TaskManagementSystem/Dockerfile"
 startCommand = "dotnet TaskManagementSystem.dll"
 
 [[services]]
-internal_port = 80  # или 8080 - должен совпадать с портом в приложении
+internal_port = 8080  # или 8080 - должен совпадать с портом в приложении
 protocol = "tcp"
 processes = ["web"]
 
