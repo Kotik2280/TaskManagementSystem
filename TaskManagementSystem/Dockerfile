@@ -31,8 +31,8 @@ COPY --from=publish /app/publish .
 # Установка EF Tool для миграций
 RUN dotnet tool install --global dotnet-ef --version 8.0.0
 
-# Скопируйте entrypoint скрипт
-COPY entrypoint.sh .
-RUN chmod +x entrypoint.sh
+# Скопируйте start скрипт
+COPY start.sh .
+RUN chmod +x start.sh
 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["./start.sh"]
