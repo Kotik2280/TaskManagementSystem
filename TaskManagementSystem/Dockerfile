@@ -27,4 +27,12 @@ RUN dotnet publish "./TaskManagementSystem.csproj" -c $BUILD_CONFIGURATION -o /a
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "TaskManagementSystem.dll"]
+
+# Установка EF Tool для миграций
+RUN dotnet tool install --global dotnet-ef --version 8.0.0
+
+# Скопируйте entrypoint скрипт
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
+
+ENTRYPOINT ["./entrypoint.sh"]

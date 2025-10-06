@@ -25,9 +25,18 @@ try
     builder.Host.UseSerilog();
 
     builder.Services.AddMvc();
+
+    string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                      ?? Environment.GetEnvironmentVariable("DATABASE_URL")
+                      ?? throw new InvalidOperationException("Connection string not found.");
+
     builder.Services.AddDbContext<NodeContext>(
-        options => options.UseSqlServer(
-            builder.Configuration.GetConnectionString("DefaultConnection")));
+        options => options.UseNpgsql(
+            builder.Configuration.GetConnectionString(connectionString)));
+    builder.Services.AddDbContext<NodeContext>(
+        options => options.UseNpgsql(
+            builder.Configuration.GetConnectionString(builder.Configuration["DATABASE_URL"])));
+
     builder.Services.AddAuthorization();
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddCookie(options => options.LoginPath = "/Home/Index")
