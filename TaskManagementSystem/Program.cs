@@ -41,12 +41,24 @@ try
 
     builder.Services.AddMvc();
 
-    string connectionString = Environment.GetEnvironmentVariable("DATABASE_URL")
-                      ?? throw new InvalidOperationException("Connection string not found.");
+    string? connectionString = Environment.GetEnvironmentVariable("DATABASE_URL");
+
+    if (string.IsNullOrEmpty(connectionString))
+    {
+        connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            throw new InvalidOperationException("Connection string not found");
+        }
+    }
+    else
+    {
+        connectionString = ConvertDatabaseUrlToConnectionString(connectionString);
+    }
 
     builder.Services.AddDbContext<NodeContext>(
-        options => options.UseNpgsql(
-            builder.Configuration.GetConnectionString(ConvertDatabaseUrlToConnectionString(connectionString))));
+        options => options.UseNpgsql(connectionString));
 
     builder.Services.AddAuthorization();
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -94,6 +106,7 @@ try
     Log.Information("====== Web application started successful! ======");
     Log.Information("Urls: {Urls}", string.Join(", ", app.Urls));
     Log.Information("Environment: {Env}", app.Environment.EnvironmentName);
+    Log.Information("Database connection string: ", connectionString);
 
     await app.WaitForShutdownAsync();
 }
