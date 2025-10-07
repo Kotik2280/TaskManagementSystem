@@ -57,6 +57,8 @@ try
         connectionString = ConvertDatabaseUrlToConnectionString(connectionString);
     }
 
+    connectionString = "postgresql://postgres:ukJxeEzgnwgDrYOpSAvWwcNNKVMIWWIt@postgres.railway.internal:5432/railway"; //temp
+
     builder.Services.AddDbContext<NodeContext>(
         options => options.UseNpgsql(connectionString));
 
