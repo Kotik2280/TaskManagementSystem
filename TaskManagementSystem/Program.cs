@@ -18,6 +18,21 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day) //Запись логов в файл
     .CreateLogger();
 
+static string ConvertDatabaseUrlToConnectionString(string databaseUrl)
+{
+    try
+    {
+        var uri = new Uri(databaseUrl);
+        var userInfo = uri.UserInfo.Split(':');
+
+        return $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true;";
+    }
+    catch (Exception ex)
+    {
+        throw new InvalidOperationException("Invalid DATABASE_URL format", ex);
+    }
+}
+
 try
 {
     Log.Information("Starting web application...");
@@ -26,16 +41,12 @@ try
 
     builder.Services.AddMvc();
 
-    string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-                      ?? Environment.GetEnvironmentVariable("DATABASE_URL")
+    string connectionString = Environment.GetEnvironmentVariable("DATABASE_URL")
                       ?? throw new InvalidOperationException("Connection string not found.");
 
     builder.Services.AddDbContext<NodeContext>(
         options => options.UseNpgsql(
-            builder.Configuration.GetConnectionString(connectionString)));
-    builder.Services.AddDbContext<NodeContext>(
-        options => options.UseNpgsql(
-            builder.Configuration.GetConnectionString(builder.Configuration["DATABASE_URL"])));
+            builder.Configuration.GetConnectionString(ConvertDatabaseUrlToConnectionString(connectionString))));
 
     builder.Services.AddAuthorization();
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

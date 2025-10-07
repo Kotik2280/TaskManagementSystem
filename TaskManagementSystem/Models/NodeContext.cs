@@ -8,7 +8,7 @@ namespace TaskManagementSystem.Models
         public DbSet<User> Users { get; set; }
         public NodeContext(DbContextOptions<NodeContext> options) : base(options)
         {
-            Database.EnsureCreated();
+            //Database.EnsureCreated();
         }
     }
 }
